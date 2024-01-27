@@ -1,7 +1,11 @@
 package com.mythymeleaf;
 
 import java.io.*;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -9,14 +13,18 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
+
+
 @WebServlet(name = "timezoneServlet", value = "/time")
 public class TimeZoneServlet extends HttpServlet {
     private String message;
-    private TemplateEngine engine = new TemplateEngine();
+    private static final TemplateEngine engine = new TemplateEngine();
+
+    @Override
     public void init() {
-        engine = new TemplateEngine();
         FileTemplateResolver resolver = new FileTemplateResolver();
-        resolver.setPrefix("D:/JavaHomeWork/MyThymeleaf/templates/");
+
+        resolver.setPrefix(getPrefix());
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML5");
         resolver.setOrder(engine.getTemplateResolvers().size());
@@ -26,14 +34,15 @@ public class TimeZoneServlet extends HttpServlet {
         message = "UTC+2";
     }
 
+
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
         Context context = new Context(request.getLocale(), Map.of("user", "Vasya"));
         engine.process("usertimezone", context, response.getWriter());
-        response.getWriter().close();;
+        response.getWriter().close();
 
 
-//        response.setContentType("text/html");
 //
 //        // Hello
 //        PrintWriter out = response.getWriter();
@@ -42,6 +51,18 @@ public class TimeZoneServlet extends HttpServlet {
 //        out.println("</body></html>");
     }
 
+    @Override
     public void destroy() {
     }
+
+    private static String getPrefix() {
+        String path = Objects.requireNonNull(TimeZoneServlet
+                        .class
+                        .getResource(""))
+                .toString()
+                .replace("file:/", "");
+        Path prefix = Path.of(path + "../../../../templates").normalize();
+        return URLDecoder.decode(prefix.toString(), StandardCharsets.UTF_8) + "\\";
+    }
+
 }
