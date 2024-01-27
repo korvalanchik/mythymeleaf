@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Objects;
 
 import jakarta.servlet.http.*;
@@ -13,11 +12,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
-
-
-@WebServlet(name = "timezoneServlet", value = "/time")
+@WebServlet(name = "timezoneServlet", urlPatterns = {"/", "/time"})
 public class TimeZoneServlet extends HttpServlet {
-    private String message;
     private static final TemplateEngine engine = new TemplateEngine();
 
     @Override
@@ -30,29 +26,40 @@ public class TimeZoneServlet extends HttpServlet {
         resolver.setOrder(engine.getTemplateResolvers().size());
         resolver.setCacheable(false);
         engine.addTemplateResolver(resolver);
-
-        message = "UTC+2";
     }
 
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("text/html");
-        Context context = new Context(request.getLocale(), Map.of("user", "Vasya"));
+        HttpSession session = request.getSession(false);
+        String username = (session != null) ? (String) session.getAttribute("username") : null;
+
+        Context context = new Context(request.getLocale());
+        context.setVariable("username", username);
         engine.process("usertimezone", context, response.getWriter());
+
+
+//        response.setContentType("text/html");
+//        Context context = new Context(request.getLocale(), Map.of("user", "Vasya"));
+//        engine.process("usertimezone", context, response.getWriter());
         response.getWriter().close();
 
+    }
 
-//
-//        // Hello
-//        PrintWriter out = response.getWriter();
-//        out.println("<html><body>");
-//        out.println("<h1>" + message + "</h1>");
-//        out.println("</body></html>");
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String username = req.getParameter("username");
+
+        if (username != null && !username.trim().isEmpty()) {
+            req.getSession().setAttribute("username", username);
+        }
+
+        resp.sendRedirect("/time");
     }
 
     @Override
     public void destroy() {
+        super.destroy();
     }
 
     private static String getPrefix() {

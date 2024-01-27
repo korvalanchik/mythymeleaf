@@ -7,6 +7,6 @@
 <body>
 <h1><%= "Hello!" %></h1>
 <br/>
-<a href="time">Input time zone</a>
+<a href="time">Let's try</a>
 </body>
 </html>
