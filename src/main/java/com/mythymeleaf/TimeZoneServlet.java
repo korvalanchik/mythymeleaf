@@ -38,14 +38,16 @@ public class TimeZoneServlet extends HttpServlet {
         String lastTimeZone = null;
         String getTimeZone = request.getParameter("timezone");
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if ("lastTimeZone".equals(cookie.getName())) {
-                if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
-                    cookie.setValue(getTimeZone.replace(" ", "+"));
-                    response.addCookie(cookie);
+        if(cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("lastTimeZone".equals(cookie.getName())) {
+                    if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
+                        cookie.setValue(getTimeZone.replace(" ", "+"));
+                        response.addCookie(cookie);
+                    }
+                    lastTimeZone = cookie.getValue();
+                    break;
                 }
-                lastTimeZone = cookie.getValue();
-                break;
             }
         }
         if (lastTimeZone == null) {
