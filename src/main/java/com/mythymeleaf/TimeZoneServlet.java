@@ -40,12 +40,11 @@ public class TimeZoneServlet extends HttpServlet {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             if ("lastTimeZone".equals(cookie.getName())) {
-
                 if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
                     cookie.setValue(getTimeZone.replace(" ", "+"));
-                    lastTimeZone = cookie.getValue();
                     response.addCookie(cookie);
                 }
+                lastTimeZone = cookie.getValue();
                 break;
             }
         }
