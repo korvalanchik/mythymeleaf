@@ -18,7 +18,7 @@ public class ValidateFilter extends HttpFilter {
         String timeZone = req.getParameter("timezone");
         if ((timeZone == "") ||
                 (timeZone == null) ||
-                (Pattern.matches("^UTC(?:[+,-][0-1]?[0-8])?$",timeZone.replace(' ', '+')))) {
+                (Pattern.matches("^UTC(?:[+,-][0-1]?[0-8])?$",timeZone))) { //.replace(' ', '+')
             chain.doFilter(req, res);
         } else {
             res.setStatus(400);

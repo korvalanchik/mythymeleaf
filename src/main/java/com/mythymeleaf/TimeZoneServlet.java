@@ -12,7 +12,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
-@WebServlet(name = "timezoneServlet", urlPatterns = {"/", "/time", "/time/*"})
+@WebServlet(name = "timezoneServlet", urlPatterns = {"/", "/time"})
 public class TimeZoneServlet extends HttpServlet {
     private static final TemplateEngine engine = new TemplateEngine();
 
@@ -59,7 +59,6 @@ public class TimeZoneServlet extends HttpServlet {
 
 
 
-
 //        response.setContentType("text/html");
 //        Context context = new Context(request.getLocale(), Map.of("user", "Vasya"));
 //        engine.process("usertimezone", context, response.getWriter());
@@ -70,9 +69,14 @@ public class TimeZoneServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String username = req.getParameter("username");
+        String getTimeZone = req.getParameter("timezone");
 
         if (username != null && !username.trim().isEmpty()) {
             req.getSession().setAttribute("username", username);
+        }
+        if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
+            Cookie cookie = new Cookie("lastTimeZone", getTimeZone);
+            resp.addCookie(cookie);
         }
 
         resp.sendRedirect("/time");
