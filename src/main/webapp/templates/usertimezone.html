@@ -12,11 +12,11 @@
 </div>
 <div>
     <h3>
-        Your time zone is <span th:text="${lastTimeZone} ? ${lastTimeZone} : 'UTC (by default)'">...</span><br>
+        Your time zone is <span th:text="${lastTimeZone}">...</span><br>
         And there now  <span th:text="${initTime}"></span>
     </h3>
 </div>
-<form action="time" method="POST">
+<form action="time" method="GET">
     <label for="timezone">Enter your time zone: </label>
     <input type="text" id="timezone" name="timezone" required>
     <button type="submit">Submit</button>

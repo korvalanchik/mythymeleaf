@@ -40,16 +40,18 @@ public class TimeZoneServlet extends HttpServlet {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             if ("lastTimeZone".equals(cookie.getName())) {
-                lastTimeZone = cookie.getValue();
+
                 if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
                     cookie.setValue(getTimeZone.replace(" ", "+"));
+                    lastTimeZone = cookie.getValue();
                     response.addCookie(cookie);
                 }
                 break;
             }
         }
         if (lastTimeZone == null) {
-            Cookie newCookie = new Cookie("lastTimeZone", (getTimeZone == null) ? "UTC" : getTimeZone);
+            lastTimeZone = (getTimeZone == null) ? "UTC" : getTimeZone;
+            Cookie newCookie = new Cookie("lastTimeZone", lastTimeZone);
             newCookie.setMaxAge(900); // 15 minutes
             response.addCookie(newCookie);
         }
@@ -69,16 +71,9 @@ public class TimeZoneServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String username = req.getParameter("username");
-        String getTimeZone = req.getParameter("timezone");
-
         if (username != null && !username.trim().isEmpty()) {
             req.getSession().setAttribute("username", username);
         }
-        if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
-            Cookie cookie = new Cookie("lastTimeZone", getTimeZone);
-            resp.addCookie(cookie);
-        }
-
         resp.sendRedirect("/time");
     }
 
