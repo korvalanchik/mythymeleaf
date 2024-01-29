@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
@@ -7,12 +7,13 @@
 <body>
 <div>
     <h2>
-        <p>Welcome, <span th:text="${username} ? ${username}+'!': 'Guest!'">...</span></p>
+        Welcome, <span th:text="${username} ? ${username}+'!': 'Guest!'">...</span>
     </h2>
 </div>
 <div>
     <h3>
-        <p>Your time zone is <span th:text="${lastTimeZone} ? ${lastTimeZone} : 'UTC (by default)'">...</span></p>
+        Your time zone is <span th:text="${lastTimeZone} ? ${lastTimeZone} : 'UTC (by default)'">...</span><br>
+        And there now  <span th:text="${initTime}"></span>
     </h3>
 </div>
 <form action="time" method="POST">

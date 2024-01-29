@@ -4,6 +4,9 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import jakarta.servlet.http.*;
@@ -28,7 +31,6 @@ public class TimeZoneServlet extends HttpServlet {
         engine.addTemplateResolver(resolver);
     }
 
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
@@ -39,31 +41,29 @@ public class TimeZoneServlet extends HttpServlet {
         for (Cookie cookie : cookies) {
             if ("lastTimeZone".equals(cookie.getName())) {
                 lastTimeZone = cookie.getValue();
-                if (getTimeZone != null) {
-                    cookie.setValue(getTimeZone);
+                if (getTimeZone != null && !getTimeZone.trim().isEmpty()) {
+                    cookie.setValue(getTimeZone.replace(" ", "+"));
                     response.addCookie(cookie);
                 }
                 break;
             }
         }
-        if(lastTimeZone == null) {
+        if (lastTimeZone == null) {
             Cookie newCookie = new Cookie("lastTimeZone", (getTimeZone == null) ? "UTC" : getTimeZone);
             newCookie.setMaxAge(900); // 15 minutes
             response.addCookie(newCookie);
         }
+
+        String initTime = getTime(lastTimeZone, getTimeZone);
+
         Context context = new Context(request.getLocale());
         context.setVariable("username", username);
         context.setVariable("lastTimeZone", lastTimeZone);
+        context.setVariable("initTime", initTime);
 
         engine.process("usertimezone", context, response.getWriter());
 
-
-
-//        response.setContentType("text/html");
-//        Context context = new Context(request.getLocale(), Map.of("user", "Vasya"));
-//        engine.process("usertimezone", context, response.getWriter());
         response.getWriter().close();
-
     }
 
     @Override
@@ -97,4 +97,15 @@ public class TimeZoneServlet extends HttpServlet {
         return URLDecoder.decode(prefix.toString(), StandardCharsets.UTF_8) + "\\";
     }
 
+    private static String getTime(String lastTimeZone, String getTimeZone) {
+        ZoneId zone;
+        if (getTimeZone == null || getTimeZone.trim().isEmpty()) {
+            zone = ZoneId.of(lastTimeZone.replace(" ", "+"));
+        } else {
+            zone = ZoneId.of(getTimeZone.replace(" ", "+"));
+        }
+        ZonedDateTime timeZone = ZonedDateTime.now(zone);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return dtf.format(timeZone);
+    }
 }
