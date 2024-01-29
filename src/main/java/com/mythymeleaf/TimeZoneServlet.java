@@ -12,7 +12,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
-@WebServlet(name = "timezoneServlet", urlPatterns = {"/", "/time"})
+@WebServlet(name = "timezoneServlet", urlPatterns = {"/", "/time", "/time/*"})
 public class TimeZoneServlet extends HttpServlet {
     private static final TemplateEngine engine = new TemplateEngine();
 
@@ -33,10 +33,31 @@ public class TimeZoneServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession(false);
         String username = (session != null) ? (String) session.getAttribute("username") : null;
-
+        String lastTimeZone = null;
+        String getTimeZone = request.getParameter("timezone");
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if ("lastTimeZone".equals(cookie.getName())) {
+                lastTimeZone = cookie.getValue();
+                if (getTimeZone != null) {
+                    cookie.setValue(getTimeZone);
+                    response.addCookie(cookie);
+                }
+                break;
+            }
+        }
+        if(lastTimeZone == null) {
+            Cookie newCookie = new Cookie("lastTimeZone", (getTimeZone == null) ? "UTC" : getTimeZone);
+            newCookie.setMaxAge(900); // 15 minutes
+            response.addCookie(newCookie);
+        }
         Context context = new Context(request.getLocale());
         context.setVariable("username", username);
+        context.setVariable("lastTimeZone", lastTimeZone);
+
         engine.process("usertimezone", context, response.getWriter());
+
+
 
 
 //        response.setContentType("text/html");

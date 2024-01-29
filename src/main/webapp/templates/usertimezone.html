@@ -5,10 +5,19 @@
     <title>Welcome</title>
 </head>
 <body>
-<h2>Welcome, <span th:text="${username}">Guest</span>!</h2>
-<form action="time" method="post">
-    <label for="username">Enter your name: </label>
-    <input type="text" id="username" name="username" required>
+<div>
+    <h2>
+        <p>Welcome, <span th:text="${username} ? ${username}+'!': 'Guest!'">...</span></p>
+    </h2>
+</div>
+<div>
+    <h3>
+        <p>Your time zone is <span th:text="${lastTimeZone} ? ${lastTimeZone} : 'UTC (by default)'">...</span></p>
+    </h3>
+</div>
+<form action="time" method="GET">
+    <label for="timezone">Enter your time zone: </label>
+    <input type="text" id="timezone" name="timezone" required>
     <button type="submit">Submit</button>
 </form>
 </body>
