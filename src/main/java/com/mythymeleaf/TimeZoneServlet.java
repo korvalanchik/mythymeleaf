@@ -1,13 +1,12 @@
 package com.mythymeleaf;
 
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -21,9 +20,21 @@ public class TimeZoneServlet extends HttpServlet {
 
     @Override
     public void init() {
+        Path prefix = null;
+        try {
+            prefix = (Paths.get(TimeZoneServlet
+                            .class
+                            .getProtectionDomain()
+                            .getCodeSource()
+                            .getLocation()
+                            .toURI()))
+                    .getParent();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        assert prefix != null;
         FileTemplateResolver resolver = new FileTemplateResolver();
-
-        resolver.setPrefix(getPrefix());
+        resolver.setPrefix(prefix + "/templates/");
         resolver.setSuffix(".html");
         resolver.setTemplateMode("HTML5");
         resolver.setOrder(engine.getTemplateResolvers().size());
@@ -76,21 +87,6 @@ public class TimeZoneServlet extends HttpServlet {
             req.getSession().setAttribute("username", username);
         }
         resp.sendRedirect("/time");
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
-
-    private static String getPrefix() {
-        String path = Objects.requireNonNull(TimeZoneServlet
-                        .class
-                        .getResource(""))
-                .toString()
-                .replace("file:/", "");
-        Path prefix = Path.of(path + "../../../../templates").normalize();
-        return URLDecoder.decode(prefix.toString(), StandardCharsets.UTF_8) + "\\";
     }
 
     private static String getTime(String lastTimeZone, String getTimeZone) {
